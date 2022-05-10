@@ -44,6 +44,20 @@ class InvadersConstruction {
 
       ];
 
+      const List<List<int>> spaceShipMatrix = [
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+        [0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0],
+        [0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0],
+      ];
+
+
       void drawSquare( int row, int isItSquare, int sqrPosition ) {
 
         double y;
@@ -81,6 +95,8 @@ class InvadersConstruction {
         pathList = crabMatrix;
       } else if(typeOfInvader == "squid") {
         pathList = squidMatrix;
+      } else if(typeOfInvader == "spaceShip") {
+        pathList = spaceShipMatrix;
       }
 
       for ( var row in pathList) {

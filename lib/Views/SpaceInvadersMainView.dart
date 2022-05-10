@@ -1,8 +1,7 @@
-import 'dart:html';
+import 'package:croco/SpaceInvaders/InvadersPositionManager.dart';
 import '../SpaceInvaders/InvadersConstruction.dart';
 import 'package:flutter/material.dart';
 import '../SpaceInvaders/InvadersAnimationManager.dart';
-
 
 class SpaceInvadersMainView extends StatelessWidget {
   const SpaceInvadersMainView({Key? key}) : super(key: key);
@@ -28,38 +27,30 @@ class SpaceCanvas extends StatefulWidget {
   State<SpaceCanvas> createState() => _SpaceCanvasState();
 }
 
-class _SpaceCanvasState extends State<SpaceCanvas> with SingleTickerProviderStateMixin {
+class _SpaceCanvasState extends State<SpaceCanvas> with TickerProviderStateMixin {
 
-  late AnimationController controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 10000 )
-  );
+  late AnimationController controller;
   late Animation<double> rightMovementAnimation;
-  late double globalMovementCounter = 0;
+  String keyLabel = "";
 
-  Tween<double> rightMovementTween = Tween<double>(
-    begin: -700,
-    end: 700
-  );
 
-  late var animation = TweenSequence<double>(InvadersAnimationManager.getTweenRightMovement(-700, 700, 24)).animate(controller);
+
+  late var animation = TweenSequence<double>(InvadersAnimationManager.getTweenRightMovement(-600, 500, 24)).animate(controller);
+
 
   @override
   void initState() {
     super.initState();
     controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 30000 )
-      
+      duration: const Duration(milliseconds: 10000 )
     );
     animation
-      ..addListener(() {
+      .addListener(() {
         setState(() {
-          globalMovementCounter++;
         });
       });
     controller.forward();
-
   }
 
   @override
@@ -70,29 +61,40 @@ class _SpaceCanvasState extends State<SpaceCanvas> with SingleTickerProviderStat
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          children: <Widget>[
-            Align(
-            alignment: Alignment.topCenter,
-            child: Container(
-              padding: EdgeInsets.only(top: 20),
-              child: Text(
-                'Welcome to space Invaders!',
-                style: TextStyle(
-                  fontWeight: FontWeight.w300,
-                  fontSize: 25,
-                  color: Colors.white70
-                )
-                ),
+    return RawKeyboardListener(
+      autofocus: true,
+      focusNode: FocusNode(),
+      onKey: (event) {
+        keyLabel = event.logicalKey.keyLabel;
+      },
+      child: Scaffold(
+        body: Center(
+          child: Column(
+            children: <Widget>[
+              Align(
+              alignment: Alignment.topCenter,
+              child: Container(
+                padding: const EdgeInsets.only(top: 20),
+                child: const Text(
+                  'Welcome to space Invaders!',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w300,
+                    fontSize: 25,
+                    color: Colors.white70
+                  )
+                  ),
+              ),
             ),
-          ),
-          CustomPaint(
-            painter : InvadersPaint(animation)
-          )
-        ])
-      )
+            Stack(
+                children: <Widget>[
+                  CustomPaint(
+                    painter : InvadersPaint(animation)
+                  ),
+                ],
+            )
+          ])
+        )
+      ),
     );
   }
 }
@@ -108,17 +110,24 @@ class InvadersPaint extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    originPath = InvadersConstruction.drawInvader(animation.value, 100, "squid");
 
-    basicSquarePaint.color = Colors.yellow;
+    Path testPath = Path();
+    Paint paint = Paint();
+  
+    paint.color = Colors.greenAccent;
+    testPath = InvadersConstruction.drawInvader(-68, 670, "spaceShip");
+    canvas.drawPath(testPath, paint);
 
-    canvas.drawPath(originPath, basicSquarePaint);
+    InvadersPositionManager.placeInvadersOnLine(canvas, animation.value + 6 + 2, 100, "squid", 58, Colors.purpleAccent);
+    InvadersPositionManager.placeInvadersOnLine(canvas, animation.value + 2, 144, "crab", 58, Colors.lightBlueAccent);
+    InvadersPositionManager.placeInvadersOnLine(canvas, animation.value + 2, 188, "crab", 58, Colors.lightBlueAccent);
+    InvadersPositionManager.placeInvadersOnLine(canvas, animation.value, 232, "octopus", 58, Colors.yellowAccent);
+    InvadersPositionManager.placeInvadersOnLine(canvas, animation.value, 276, "octopus", 58, Colors.yellowAccent);
   }
   @override
   bool shouldRepaint(CustomPainter oldDelegate) {
     return false;
   }
-
 }
 
 

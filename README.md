@@ -1,6 +1,6 @@
-# croco
+# Flutter Space Invaders
 
-A new Flutter project.
+For some reason the app feels laggy when it's built using debug mode, runs smoother on profile.
 
 ## Getting Started
 
