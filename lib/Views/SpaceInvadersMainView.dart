@@ -30,17 +30,29 @@ class SpaceCanvas extends StatefulWidget {
 class _SpaceCanvasState extends State<SpaceCanvas> with TickerProviderStateMixin {
 
   late AnimationController controller;
-  late Animation<double> rightMovementAnimation;
+  double animationStateValue = 0;
   String keyLabel = "";
 
-
+  late AnimationController controllerAsync;
+  late double animationStateValueAsync;
 
   late var animation = TweenSequence<double>(InvadersAnimationManager.getTweenRightMovement(-600, 500, 24)).animate(controller);
+  late var animationAsync = Tween<double>(begin: -700, end: 700).animate(controllerAsync);
 
 
   @override
   void initState() {
     super.initState();
+    controllerAsync = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 10000)
+    );
+    animationAsync
+      .addListener(() {
+        setState(() {
+          print(animationAsync.value);
+        });
+      });
     controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 10000 )
@@ -48,9 +60,11 @@ class _SpaceCanvasState extends State<SpaceCanvas> with TickerProviderStateMixin
     animation
       .addListener(() {
         setState(() {
+          animationStateValue = animation.value;
         });
       });
     controller.forward();
+    controllerAsync.forward();
   }
 
   @override
@@ -88,7 +102,7 @@ class _SpaceCanvasState extends State<SpaceCanvas> with TickerProviderStateMixin
             Stack(
                 children: <Widget>[
                   CustomPaint(
-                    painter : InvadersPaint(animation)
+                    painter : InvadersPaint(animationStateValue, animation, animationAsync.value)
                   ),
                 ],
             )
@@ -104,25 +118,27 @@ class InvadersPaint extends CustomPainter {
 
   Paint basicSquarePaint = Paint();
   Path originPath = Path();
-  Animation animation;
+  late Animation animation;
+  late double animationStateValue;
+  late double animationAsync;
 
-  InvadersPaint(this.animation) : super(repaint: animation);
+  InvadersPaint(this.animationStateValue, this.animation, this.animationAsync) : super(repaint: animation);
 
   @override
   void paint(Canvas canvas, Size size) {
-
+  
     Path testPath = Path();
     Paint paint = Paint();
   
     paint.color = Colors.greenAccent;
-    testPath = InvadersConstruction.drawInvader(-68, 670, "spaceShip");
+    testPath = InvadersConstruction.drawInvader(0, 670, "spaceShip");
     canvas.drawPath(testPath, paint);
 
-    InvadersPositionManager.placeInvadersOnLine(canvas, animation.value + 6 + 2, 100, "squid", 58, Colors.purpleAccent);
-    InvadersPositionManager.placeInvadersOnLine(canvas, animation.value + 2, 144, "crab", 58, Colors.lightBlueAccent);
-    InvadersPositionManager.placeInvadersOnLine(canvas, animation.value + 2, 188, "crab", 58, Colors.lightBlueAccent);
-    InvadersPositionManager.placeInvadersOnLine(canvas, animation.value, 232, "octopus", 58, Colors.yellowAccent);
-    InvadersPositionManager.placeInvadersOnLine(canvas, animation.value, 276, "octopus", 58, Colors.yellowAccent);
+    InvadersPositionManager.placeInvadersOnLine(canvas, animationStateValue + 6 + 2, 100, "squid", 58, Colors.purpleAccent);
+    InvadersPositionManager.placeInvadersOnLine(canvas, animationStateValue + 2, 144, "crab", 58, Colors.lightBlueAccent);
+    InvadersPositionManager.placeInvadersOnLine(canvas, animationStateValue + 2, 188, "crab", 58, Colors.lightBlueAccent);
+    InvadersPositionManager.placeInvadersOnLine(canvas, animationStateValue, 232, "octopus", 58, Colors.yellowAccent);
+    InvadersPositionManager.placeInvadersOnLine(canvas, animationStateValue, 276, "octopus", 58, Colors.yellowAccent);
   }
   @override
   bool shouldRepaint(CustomPainter oldDelegate) {

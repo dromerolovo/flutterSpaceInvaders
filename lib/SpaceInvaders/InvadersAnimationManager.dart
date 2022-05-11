@@ -15,21 +15,15 @@ class InvadersAnimationManager {
     var tweenSequence = <TweenSequenceItem<double>>[];
 
       for(int i = 1; i <= steps; i++ ) {
-        if(i % 2 == 0) {
+
+          var subCounter = i - 1;
           var tweenItem = TweenSequenceItem<double>(
-          tween: Tween<double>(begin: originX + pixelsToRight * i -1, end: originX + pixelsToRight * i -1),
-          weight: 100/steps
-          );
-          tweenSequence.add(tweenItem); 
-        } else {
-          var tweenItem = TweenSequenceItem<double>(
-          tween: Tween<double>(begin: originX + pixelsToRight * i, end: originX + pixelsToRight * i),
-          weight: 100/steps
+          tween: Tween<double>(begin: originX + pixelsToRight * subCounter, end: originX + pixelsToRight * i),
+          weight: 100/ steps 
           );
           tweenSequence.add(tweenItem);
-        }
       }     
-    return tweenSequence;
+      return tweenSequence;
     }
 
     static double getSpaceShipMovement(String keyLabel) {
