@@ -102,7 +102,7 @@ class _SpaceCanvasState extends State<SpaceCanvas> with TickerProviderStateMixin
             Stack(
                 children: <Widget>[
                   CustomPaint(
-                    painter : InvadersPaint(animationStateValue, animation, animationAsync.value)
+                    painter : InvadersPaint(animation, animationAsync)
                   ),
                 ],
             )
@@ -120,9 +120,9 @@ class InvadersPaint extends CustomPainter {
   Path originPath = Path();
   late Animation animation;
   late double animationStateValue;
-  late double animationAsync;
+  late Animation animationAsync;
 
-  InvadersPaint(this.animationStateValue, this.animation, this.animationAsync) : super(repaint: animation);
+  InvadersPaint(this.animation, this.animationAsync) : super(repaint: animation);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -131,14 +131,14 @@ class InvadersPaint extends CustomPainter {
     Paint paint = Paint();
   
     paint.color = Colors.greenAccent;
-    testPath = InvadersConstruction.drawInvader(0, 670, "spaceShip");
+    testPath = InvadersConstruction.drawInvader(animationAsync.value, 670, "spaceShip");
     canvas.drawPath(testPath, paint);
 
-    InvadersPositionManager.placeInvadersOnLine(canvas, animationStateValue + 6 + 2, 100, "squid", 58, Colors.purpleAccent);
-    InvadersPositionManager.placeInvadersOnLine(canvas, animationStateValue + 2, 144, "crab", 58, Colors.lightBlueAccent);
-    InvadersPositionManager.placeInvadersOnLine(canvas, animationStateValue + 2, 188, "crab", 58, Colors.lightBlueAccent);
-    InvadersPositionManager.placeInvadersOnLine(canvas, animationStateValue, 232, "octopus", 58, Colors.yellowAccent);
-    InvadersPositionManager.placeInvadersOnLine(canvas, animationStateValue, 276, "octopus", 58, Colors.yellowAccent);
+    InvadersPositionManager.placeInvadersOnLine(canvas, animation.value + 6 + 2, 100, "squid", 58, Colors.purpleAccent);
+    InvadersPositionManager.placeInvadersOnLine(canvas, animation.value + 2, 144, "crab", 58, Colors.lightBlueAccent);
+    InvadersPositionManager.placeInvadersOnLine(canvas, animation.value + 2, 188, "crab", 58, Colors.lightBlueAccent);
+    InvadersPositionManager.placeInvadersOnLine(canvas, animation.value, 232, "octopus", 58, Colors.yellowAccent);
+    InvadersPositionManager.placeInvadersOnLine(canvas, animation.value, 276, "octopus", 58, Colors.yellowAccent);
   }
   @override
   bool shouldRepaint(CustomPainter oldDelegate) {
