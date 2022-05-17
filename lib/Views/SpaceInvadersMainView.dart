@@ -1,7 +1,9 @@
-import 'package:croco/SpaceInvaders/InvadersPositionManager.dart';
-import '../SpaceInvaders/InvadersConstruction.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
+import 'dart:ui' as ui;
+import 'package:flutter/services.dart' show rootBundle;
 import '../SpaceInvaders/InvadersAnimationManager.dart';
+
 
 class SpaceInvadersMainView extends StatelessWidget {
   const SpaceInvadersMainView({Key? key}) : super(key: key);
@@ -28,49 +30,35 @@ class SpaceCanvas extends StatefulWidget {
 }
 
 class _SpaceCanvasState extends State<SpaceCanvas> with TickerProviderStateMixin {
-
-  late AnimationController controller;
-  double animationStateValue = 0;
-  String keyLabel = "";
-
-  late AnimationController controllerAsync;
-  late double animationStateValueAsync;
-
-  late var animation = TweenSequence<double>(InvadersAnimationManager.getTweenRightMovement(-600, 500, 24)).animate(controller);
-  late var animationAsync = Tween<double>(begin: -700, end: 700).animate(controllerAsync);
-
+  late Ticker ticker;
+  late ui.Image sprite; 
+  final notifier = ValueNotifier(Duration.zero);
+  late var keyLabel = "";
+  double spaceShipMovementState = 0;
+  late double number = 0;
 
   @override
   void initState() {
     super.initState();
-    controllerAsync = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 10000)
-    );
-    animationAsync
-      .addListener(() {
-        setState(() {
-          print(animationAsync.value);
-        });
-      });
-    controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 10000 )
-    );
-    animation
-      .addListener(() {
-        setState(() {
-          animationStateValue = animation.value;
-        });
-      });
-    controller.forward();
-    controllerAsync.forward();
+    ticker = Ticker(tick);
+
+    rootBundle.load('assets/invaders.png')
+    .then((data) => decodeImageFromList(data.buffer.asUint8List()))
+    .then((data) => setSprite(data));
   }
 
   @override
   void dispose() {
-    controller.dispose();
     super.dispose();
+  }
+
+  tick(Duration d ) => notifier.value = d;
+
+  setSprite(ui.Image image) {
+    setState(() {
+      sprite = image;
+      ticker.start();
+    });
   }
 
   @override
@@ -80,6 +68,7 @@ class _SpaceCanvasState extends State<SpaceCanvas> with TickerProviderStateMixin
       focusNode: FocusNode(),
       onKey: (event) {
         keyLabel = event.logicalKey.keyLabel;
+        print(keyLabel);
       },
       child: Scaffold(
         body: Center(
@@ -99,13 +88,14 @@ class _SpaceCanvasState extends State<SpaceCanvas> with TickerProviderStateMixin
                   ),
               ),
             ),
-            Stack(
-                children: <Widget>[
+              Container(
+                child: (
                   CustomPaint(
-                    painter : InvadersPaint(animation, animationAsync)
-                  ),
-                ],
-            )
+                    foregroundPainter : InvadersPaint(sprite, notifier, keyLabel, spaceShipMovementState),
+                    child: Center()
+                  )
+                ),
+              ),
           ])
         )
       ),
@@ -116,29 +106,24 @@ class _SpaceCanvasState extends State<SpaceCanvas> with TickerProviderStateMixin
 
 class InvadersPaint extends CustomPainter {
 
-  Paint basicSquarePaint = Paint();
-  Path originPath = Path();
-  late Animation animation;
-  late double animationStateValue;
-  late Animation animationAsync;
+  late ui.Image sprite;
+  final ValueNotifier<Duration> notifier;
+  late var keyLabel;
+  late double spaceShipMovementState;
 
-  InvadersPaint(this.animation, this.animationAsync) : super(repaint: animation);
+  InvadersPaint(this.sprite, this.notifier, this.keyLabel, this.spaceShipMovementState) : super(repaint: notifier);
 
   @override
   void paint(Canvas canvas, Size size) {
-  
-    Path testPath = Path();
-    Paint paint = Paint();
-  
-    paint.color = Colors.greenAccent;
-    testPath = InvadersConstruction.drawInvader(animationAsync.value, 670, "spaceShip");
-    canvas.drawPath(testPath, paint);
 
-    InvadersPositionManager.placeInvadersOnLine(canvas, animation.value + 6 + 2, 100, "squid", 58, Colors.purpleAccent);
-    InvadersPositionManager.placeInvadersOnLine(canvas, animation.value + 2, 144, "crab", 58, Colors.lightBlueAccent);
-    InvadersPositionManager.placeInvadersOnLine(canvas, animation.value + 2, 188, "crab", 58, Colors.lightBlueAccent);
-    InvadersPositionManager.placeInvadersOnLine(canvas, animation.value, 232, "octopus", 58, Colors.yellowAccent);
-    InvadersPositionManager.placeInvadersOnLine(canvas, animation.value, 276, "octopus", 58, Colors.yellowAccent);
+    InvadersAnimationManager.keyLabelValuesToState(keyLabel, spaceShipMovementState);
+    print(spaceShipMovementState);
+
+    // canvas.clipRect(Offset.zero & size);
+    if (sprite != null) {
+      InvadersAnimationManager.getAnimation(sprite, notifier, size, canvas, spaceShipMovementState, keyLabel);
+      keyLabel != "" ? () => print(keyLabel) : null;
+    }
   }
   @override
   bool shouldRepaint(CustomPainter oldDelegate) {

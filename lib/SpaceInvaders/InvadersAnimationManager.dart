@@ -1,44 +1,69 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'dart:html';
+import 'dart:ui' as ui;
+import 'dart:math';
 
 
 class InvadersAnimationManager {
 
-  //This method  maps the right direction movement(-x -> x) of invaders in a List of Tween Sequence Items, that it's
-  //going to be procesed by the TweenSequence constructor '../Views/SpaceInvadersMainView.dart' line: 37
+  static void getAnimation (ui.Image sprite, ValueNotifier<Duration> notifier, Size size, Canvas canvas, double spaceShipMovementState, String keyLabel) {
+    final ms = notifier.value.inMilliseconds;
+    final frame = ms ~/200;
 
-  static List<TweenSequenceItem<double>> getTweenRightMovement (double originX, double finalX, double pixelsToRight) {
+    //Every 32 frames the invaders change movement, so 32 frames go to the right and then 32 frames to the left.
+    const extent = 32; 
+    // So basically is a way of mapping the size of the window if it gets smaller.
+    // The multiplication 12 * 16 is the length of a row of invaders, and the -2 is an arbitrary number to make 
+    // the invaders smaller
+    final scale = size.width / (12 * 16 + extent) - 2;
+    final phase = frame % (extent * 2); //Puts a limit to the frame, so it go from 0 to 63
 
-    double steps = 16;
+    //Basically this operation increases until certain point and then decreases. 
+    final invadersMovement = scale * (phase > extent ? phase : 2 * extent - phase);
+
+    // Because the spaceShip needs a continuos flow, it is necesary the raw ms value. Also, the sin function is used 
+    // to achieve an increase and a decrease in value and the power cancels the negative values. 
+
+    // final spaceShipMovement = (size.width - 16 * scale) * pow(sin(2 * pi * ms / 10000 ), 2);
+
+    final transforms = [
+      for(int i = 0; i < 5; i++) 
+        ...List.generate(12, (index) => RSTransform(scale, 0, invadersMovement + scale * index * 16 + 50, scale * i * 16 + 100)),
+        RSTransform(scale, 0, size.width / 2 + spaceShipMovementState, scale * 5 * 16 + 250),
+    ];
+
+    final rects = [
+      for (int i = 0; i < 12; i++) Rect.fromLTWH(0, frame % 2 * 8, 16, 8),
+      for (int i = 0; i < 12; i++) Rect.fromLTWH(16, frame % 2 * 8, 16, 8),
+      for (int i = 0; i < 12; i++) Rect.fromLTWH(16, frame % 2 * 8, 16, 8),
+      for (int i = 0; i < 12; i++) Rect.fromLTWH(32, frame % 2 * 8, 16, 8),
+      for (int i = 0; i < 12; i++) Rect.fromLTWH(32, frame % 2 * 8, 16, 8),
+      Rect.fromLTWH(0, 16, 16, 8),
+    ];
+
+    final colors = [
+      for (int i = 0; i < 12; i++) Colors.purpleAccent,
+      for (int i = 0; i < 12; i++) Colors.lightBlueAccent,
+      for (int i = 0; i < 12; i++) Colors.lightBlueAccent,
+      for (int i = 0; i < 12; i++) Colors.yellowAccent,
+      for (int i = 0; i < 12; i++) Colors.yellowAccent,
+      Colors.greenAccent,
+  ];
+
+  canvas.drawAtlas(sprite, transforms, rects, colors, BlendMode.dstATop, null, Paint());
+
     
-    var tweenSequence = <TweenSequenceItem<double>>[];
-
-      for(int i = 1; i <= steps; i++ ) {
-
-          var subCounter = i - 1;
-          var tweenItem = TweenSequenceItem<double>(
-          tween: Tween<double>(begin: originX + pixelsToRight * subCounter, end: originX + pixelsToRight * i),
-          weight: 100/ steps 
-          );
-          tweenSequence.add(tweenItem);
-      }     
-      return tweenSequence;
-    }
-
-    static double getSpaceShipMovement(String keyLabel) {
-
-      double movementValue = 0;
-
-      if(keyLabel == "Arrow Right") {
-        movementValue = 10;
-      } else if (keyLabel == "Arrow Left") {
-        movementValue = -10;
-      } else if(keyLabel == "" || keyLabel == null ) {
-        movementValue = 0;
-      }
-
-      return movementValue;
-    }
-
   }
+
+  static void keyLabelValuesToState(String keyLabel, double spaceShipMovementState) {
+    switch(keyLabel) {
+      case "Arrow Left" : {spaceShipMovementState -= 5;}
+      break;
+
+      case "Arrow Right" : {spaceShipMovementState += 5;}
+      break;
+    }
+  }
+
+}
