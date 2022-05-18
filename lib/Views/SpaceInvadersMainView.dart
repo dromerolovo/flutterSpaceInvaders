@@ -33,9 +33,8 @@ class _SpaceCanvasState extends State<SpaceCanvas> with TickerProviderStateMixin
   late Ticker ticker;
   late ui.Image sprite; 
   final notifier = ValueNotifier(Duration.zero);
-  late var keyLabel = "";
-  double spaceShipMovementState = 0;
-  late double number = 0;
+  late String keyLabel = "";
+  double keyLabelValueState = 0;
 
   @override
   void initState() {
@@ -68,7 +67,14 @@ class _SpaceCanvasState extends State<SpaceCanvas> with TickerProviderStateMixin
       focusNode: FocusNode(),
       onKey: (event) {
         keyLabel = event.logicalKey.keyLabel;
-        print(keyLabel);
+        setState(() {
+          if(keyLabel == "Arrow Left") {
+            keyLabelValueState -= 1;
+          } else if (keyLabel == "Arrow Right") {
+            keyLabelValueState += 1;
+          }
+        });
+        print(keyLabelValueState);
       },
       child: Scaffold(
         body: Center(
@@ -91,7 +97,7 @@ class _SpaceCanvasState extends State<SpaceCanvas> with TickerProviderStateMixin
               Container(
                 child: (
                   CustomPaint(
-                    foregroundPainter : InvadersPaint(sprite, notifier, keyLabel, spaceShipMovementState),
+                    foregroundPainter : InvadersPaint(sprite, notifier,keyLabelValueState),
                     child: Center()
                   )
                 ),
@@ -108,21 +114,17 @@ class InvadersPaint extends CustomPainter {
 
   late ui.Image sprite;
   final ValueNotifier<Duration> notifier;
-  late var keyLabel;
-  late double spaceShipMovementState;
+  double keyLabelValueState;
 
-  InvadersPaint(this.sprite, this.notifier, this.keyLabel, this.spaceShipMovementState) : super(repaint: notifier);
+  InvadersPaint(this.sprite, this.notifier,this.keyLabelValueState) : super(repaint: notifier);
 
   @override
   void paint(Canvas canvas, Size size) {
 
-    InvadersAnimationManager.keyLabelValuesToState(keyLabel, spaceShipMovementState);
-    print(spaceShipMovementState);
-
     // canvas.clipRect(Offset.zero & size);
     if (sprite != null) {
-      InvadersAnimationManager.getAnimation(sprite, notifier, size, canvas, spaceShipMovementState, keyLabel);
-      keyLabel != "" ? () => print(keyLabel) : null;
+      InvadersAnimationManager.getAnimation(sprite, notifier, size, canvas, keyLabelValueState);
+      print(keyLabelValueState);
     }
   }
   @override

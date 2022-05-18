@@ -7,7 +7,7 @@ import 'dart:math';
 
 class InvadersAnimationManager {
 
-  static void getAnimation (ui.Image sprite, ValueNotifier<Duration> notifier, Size size, Canvas canvas, double spaceShipMovementState, String keyLabel) {
+  static void getAnimation (ui.Image sprite, ValueNotifier<Duration> notifier, Size size, Canvas canvas, double keyLabelValueState) {
     final ms = notifier.value.inMilliseconds;
     final frame = ms ~/200;
 
@@ -30,7 +30,7 @@ class InvadersAnimationManager {
     final transforms = [
       for(int i = 0; i < 5; i++) 
         ...List.generate(12, (index) => RSTransform(scale, 0, invadersMovement + scale * index * 16 + 50, scale * i * 16 + 100)),
-        RSTransform(scale, 0, size.width / 2 + spaceShipMovementState, scale * 5 * 16 + 250),
+        RSTransform(scale, 0, size.width / 2 + keyLabelValueState * 12, scale * 5 * 16 + 250),
     ];
 
     final rects = [
