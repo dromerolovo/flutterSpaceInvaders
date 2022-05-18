@@ -55,15 +55,4 @@ class InvadersAnimationManager {
 
     
   }
-
-  static void keyLabelValuesToState(String keyLabel, double spaceShipMovementState) {
-    switch(keyLabel) {
-      case "Arrow Left" : {spaceShipMovementState -= 5;}
-      break;
-
-      case "Arrow Right" : {spaceShipMovementState += 5;}
-      break;
-    }
-  }
-
 }

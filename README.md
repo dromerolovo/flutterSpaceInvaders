@@ -1,6 +1,6 @@
 # Flutter Space Invaders
 
-For some reason the app feels laggy when it's built using debug mode, runs smoother on profile.
+Ongoing project
 
 ## Getting Started
 
